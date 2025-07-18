@@ -3,7 +3,6 @@ package net.icdcyborg.mavenDependencyTracker.data
 import com.google.common.truth.Truth.assertThat
 import net.icdcyborg.mavenDependencyTracker.domain.Dependency
 import net.icdcyborg.mavenDependencyTracker.domain.ParentData
-import net.icdcyborg.mavenDependencyTracker.domain.PomData
 import org.junit.jupiter.api.Test
 
 class PomParserTest {
@@ -21,7 +20,10 @@ class PomParserTest {
         """.trimIndent()
 
         val result = parser.parse(xmlString)
-        
+        if (result.isFailure) {
+            val error = result.exceptionOrNull()
+            println("error message: $error")
+        }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
         assertThat(pomData.groupId).isEqualTo("com.example")
@@ -49,7 +51,10 @@ class PomParserTest {
         """.trimIndent()
 
         val result = parser.parse(xmlString)
-
+        if (result.isFailure) {
+            val error = result.exceptionOrNull()
+            println("error message: $error")
+        }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
         assertThat(pomData.groupId).isEqualTo("com.example")
@@ -83,7 +88,10 @@ class PomParserTest {
         """.trimIndent()
 
         val result = parser.parse(xmlString)
-
+        if (result.isFailure) {
+            val error = result.exceptionOrNull()
+            println("error message: $error")
+        }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
         assertThat(pomData.dependencies).hasSize(2)
@@ -106,7 +114,10 @@ class PomParserTest {
         """.trimIndent()
 
         val result = parser.parse(xmlString)
-
+        if (result.isFailure) {
+            val error = result.exceptionOrNull()
+            println("error message: $error")
+        }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
         assertThat(pomData.properties).hasSize(2)
@@ -136,7 +147,10 @@ class PomParserTest {
         """.trimIndent()
 
         val result = parser.parse(xmlString)
-
+        if (result.isFailure) {
+            val error = result.exceptionOrNull()
+            println("error message: $error")
+        }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
         assertThat(pomData.dependencyManagement).hasSize(1)
