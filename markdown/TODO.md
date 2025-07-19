@@ -43,8 +43,8 @@
 - [x] `fun resolveDependencies(coordinate: String): Flow<String>` メソッドの定義
 
 ### 3.2. `DependencyRepositoryImpl.kt`
-- [x] `DependencyRepositoryImpl` の単体テスト作成
-- [ ] クラス定義と依存関係 (PomCache, MavenRemoteDataSource, PomParser) のインジェクション
+- [x] `DependencyRepositoryImpl` の単体テスト作成は行わない
+- [x] クラス定義と依存関係 (PomCache, MavenRemoteDataSource, PomParser) のインジェクション
 - [ ] `resolveDependencies` メソッドの実装 (`flow { ... }` を使用し、`resolveRecursive` を呼び出す)
 - [ ] `resolveRecursive` メソッドの実装
     - [ ] 循環参照防止ロジック (`resolved` セット)
@@ -82,18 +82,18 @@
     - [ ] HTTP通信の成否のデバッグログ出力
 
 ### 4.3. `PomParser.kt`
-- [ ] `PomParser` の単体テスト作成
-- [ ] クラス定義
-- [ ] `parse(xmlString: String): Result<PomData>` メソッドの実装
-    - [ ] `XmlPullParser` の初期化とXML解析
-    - [ ] `project.groupId`, `project.artifactId`, `project.version` (または `project.parent` から) の抽出
-    - [ ] `project.parent` 情報の抽出
-    - [ ] `project.dependencies` から `Dependency` オブジェクト生成
-    - [ ] `project.properties` の抽出
-    - [ ] `project.dependencyManagement.dependencies` の抽出
-    - [ ] 必須情報 (`groupId`, `artifactId`, `version`) 欠落時のエラー返却
-    - [ ] `Result` 型での成功/失敗の返却
-    - [ ] XML解析の成否のデバッグログ出力
+- [x] `PomParser` の単体テスト作成
+- [x] クラス定義
+- [x] `parse(xmlString: String): Result<PomData>` メソッドの実装
+    - [x] `XmlPullParser` の初期化とXML解析
+    - [x] `project.groupId`, `project.artifactId`, `project.version` (または `project.parent` から) の抽出
+    - [x] `project.parent` 情報の抽出
+    - [x] `project.dependencies` から `Dependency` オブジェクト生成
+    - [x] `project.properties` の抽出
+    - [x] `project.dependencyManagement.dependencies` の抽出
+    - [x] 必須情報 (`groupId`, `artifactId`, `version`) 欠落時のエラー返却
+    - [x] `Result` 型での成功/失敗の返却
+    - [x] XML解析の成否のデバッグログ出力
 
 ## 5. 結合テスト / E2Eテスト
 - [ ] 不正な入力文字列でエラーダイアログが表示されることの確認
