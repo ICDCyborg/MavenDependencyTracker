@@ -22,7 +22,7 @@ class DependencyRepositoryImplTest {
     fun `resolveDependencies should return flow of dependencies`() = runTest {
         val coordinate = "a:b:c"
         val pomXml = "<project></project>"
-        val pomData = PomData("a", "b", "c", null, emptyList(), propertiesSection = null)
+        val pomData = PomData("a", "b", "c", null, emptyList(), properties = null)
 
         coEvery { mavenRemoteDataSource.getPomXml(coordinate) } returns Result.success(pomXml)
         coEvery { pomParser.parse(pomXml) } returns Result.success(pomData)

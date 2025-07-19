@@ -19,17 +19,14 @@ data class PomData(
     val version: String? = null,
     @JacksonXmlProperty(localName = "parent")
     val parent: ParentData? = null,
-    @JacksonXmlElementWrapper(localName = "dependencies")
-    @JacksonXmlProperty(localName = "dependency")
-    val dependencies: List<Dependency> = emptyList(),
+    @JacksonXmlElementWrapper(useWrapping = true)
+    @JacksonXmlProperty(localName = "dependencies")
+    val dependencies: List<Dependency>? = emptyList(),
     @JacksonXmlProperty(localName = "properties")
-    val propertiesSection: PropertiesSection? = null,
+    val properties: PropertiesSection? = null,
     @JacksonXmlProperty(localName = "dependencyManagement")
-    val dependencyManagementSection: DependencyManagementSection? = null
-) {
-    val properties: Map<String, String> get() = propertiesSection?.map ?: emptyMap()
-    val dependencyManagement: List<Dependency> get() = dependencyManagementSection?.dependencies ?: emptyList()
-}
+    val dependencyManagement: DependencyManagementSection? = null
+)
 
 data class PropertiesSection(
     val map: MutableMap<String, String> = mutableMapOf()
@@ -38,12 +35,17 @@ data class PropertiesSection(
     fun set(name: String, value: String) {
         map[name] = value
     }
+    fun get() { map }
+    operator fun get(key: String): String? {
+        return map[key]
+    }
+    val length: Int get() = map.size
 }
 
 data class DependencyManagementSection(
-    @JacksonXmlElementWrapper(localName = "dependencies")
-    @JacksonXmlProperty(localName = "dependency")
-    val dependencies: List<Dependency> = emptyList()
+    @JacksonXmlElementWrapper(useWrapping = true)
+    @JacksonXmlProperty(localName = "dependencies")
+    val dependencies: List<Dependency>? = emptyList(),
 )
 
 /**
@@ -63,13 +65,13 @@ data class ParentData(
  */
 data class Dependency(
     @JsonProperty("groupId")
-    val groupId: String,
+    val groupId: String?,
     @JsonProperty("artifactId")
-    val artifactId: String,
-    @JsonProperty("version")
+    val artifactId: String?,
+    @JacksonXmlProperty(localName = "version")
     val version: String? = null,
-    @JsonProperty("scope")
+    @JacksonXmlProperty(localName = "scope")
     val scope: String? = null,
-    @JsonProperty("optional")
-    val optional: Boolean = false
+    @JacksonXmlProperty(localName = "optional")
+    val optional: Boolean? = false
 )

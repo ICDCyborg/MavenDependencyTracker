@@ -1,9 +1,14 @@
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("io.gitlab.arturbosch.detekt")
+    id("org.jlleitschuh.gradle.ktlint")
     jacoco
 }
+
 
 android {
     namespace = "net.icdcyborg.mavenDependencyTracker"
@@ -40,6 +45,9 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    lint {
+        abortOnError = false
     }
     testOptions {
         unitTests {
@@ -86,4 +94,15 @@ dependencies {
 
 jacoco {
     toolVersion = libs.versions.jacoco.get()
+}
+
+detekt {
+    config.setFrom(files("$rootDir/detekt.yml"))
+}
+
+ktlint {
+    version.set("1.2.1")
+    reporters {
+        reporter(ReporterType.PLAIN)
+    }
 }

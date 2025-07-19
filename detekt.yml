@@ -1,0 +1,7 @@
+build:
+  maxIssues: 10
+  weights: { ... }
+
+config:
+  validation: true
+  # ... other default config

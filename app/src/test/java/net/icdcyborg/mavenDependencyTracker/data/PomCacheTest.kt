@@ -17,7 +17,7 @@ class PomCacheTest {
     @Test
     fun `put and get should store and retrieve PomData`() {
         val coordinate = "group:artifact:version"
-        val pomData = PomData("group", "artifact", "version", null, emptyList(), propertiesSection = null)
+        val pomData = PomData("group", "artifact", "version", null, emptyList(), properties = null)
 
         pomCache.put(coordinate, pomData)
         val retrievedPomData = pomCache.get(coordinate)
@@ -36,7 +36,7 @@ class PomCacheTest {
     @Test
     fun `contains should return true if coordinate in cache`() {
         val coordinate = "group:artifact:version"
-        val pomData = PomData("group", "artifact", "version", null, emptyList(), propertiesSection = null)
+        val pomData = PomData("group", "artifact", "version", null, emptyList(), properties = null)
 
         pomCache.put(coordinate, pomData)
 

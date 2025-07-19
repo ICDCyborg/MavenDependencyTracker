@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
  */
 class MavenRemoteDataSource(private val httpClient: HttpClient) {
 
-    private val BASE_URL = "https://repo1.maven.org/maven2/"
+    private val baseUrl = "https://repo1.maven.org/maven2/"
 
     /**
      * 指定されたMaven座標に対応するPOMファイルのXML文字列を取得します。
@@ -33,7 +33,7 @@ class MavenRemoteDataSource(private val httpClient: HttpClient) {
         val version = parts[2]
 
         val path = "${groupId.replace('.', '/')}/$artifactId/$version/$artifactId-$version.pom"
-        val url = "$BASE_URL$path"
+        val url = "$baseUrl$path"
 
         return try {
             val response: HttpResponse = httpClient.get(url)

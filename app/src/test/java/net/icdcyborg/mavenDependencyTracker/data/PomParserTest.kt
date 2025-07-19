@@ -31,8 +31,8 @@ class PomParserTest {
         assertThat(pomData.version).isEqualTo("1.0.0")
         assertThat(pomData.parent).isNull()
         assertThat(pomData.dependencies).isEmpty()
-        assertThat(pomData.properties).isEmpty()
-        assertThat(pomData.dependencyManagement).isEmpty()
+        assertThat(pomData.properties).isNull()
+        assertThat(pomData.dependencyManagement).isNull()
     }
 
     @Test
@@ -94,9 +94,28 @@ class PomParserTest {
         }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
-        assertThat(pomData.dependencies).hasSize(2)
-        assertThat(pomData.dependencies[0]).isEqualTo(Dependency("junit", "junit", "4.13.2", "test", true))
-        assertThat(pomData.dependencies[1]).isEqualTo(Dependency("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.6.0", null, false))
+        println(pomData)
+        assertThat(pomData.dependencies?.size).isEqualTo(2)
+        if (pomData.dependencies != null) {
+            assertThat(pomData.dependencies!![0]).isEqualTo(
+                Dependency(
+                    "junit",
+                    "junit",
+                    "4.13.2",
+                    "test",
+                    true
+                )
+            )
+            assertThat(pomData.dependencies!![1]).isEqualTo(
+                Dependency(
+                    "org.jetbrains.kotlinx",
+                    "kotlinx-coroutines-core",
+                    "1.6.0",
+                    null,
+                    false
+                )
+            )
+        }
     }
 
     @Test
@@ -120,9 +139,12 @@ class PomParserTest {
         }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
-        assertThat(pomData.properties).hasSize(2)
-        assertThat(pomData.properties["kotlin.version"]).isEqualTo("1.6.0")
-        assertThat(pomData.properties["spring.version"]).isEqualTo("5.3.18")
+        assertThat(pomData.properties?.length).isEqualTo(2)
+        if (pomData.properties != null) {
+            println(pomData)
+            assertThat(pomData.properties!!["kotlin.version"]).isEqualTo("1.6.0")
+            assertThat(pomData.properties!!["spring.version"]).isEqualTo("5.3.18")
+        }
     }
 
     @Test
@@ -153,8 +175,18 @@ class PomParserTest {
         }
         assertThat(result.isSuccess).isTrue()
         val pomData = result.getOrThrow()
-        assertThat(pomData.dependencyManagement).hasSize(1)
-        assertThat(pomData.dependencyManagement[0]).isEqualTo(Dependency("org.springframework.boot", "spring-boot-dependencies", "2.7.0", "import", false))
+        assertThat(pomData.dependencyManagement?.dependencies?.size).isEqualTo(1)
+        if (pomData.dependencyManagement?.dependencies != null) {
+            assertThat(pomData.dependencyManagement?.dependencies!![0]).isEqualTo(
+                Dependency(
+                    "org.springframework.boot",
+                    "spring-boot-dependencies",
+                    "2.7.0",
+                    "import",
+                    false
+                )
+            )
+        }
     }
 
     @Test

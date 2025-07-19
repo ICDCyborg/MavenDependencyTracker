@@ -43,7 +43,7 @@ class MainViewModel(private val dependencyRepository: DependencyRepository) : Vi
      * @param coordinate Maven座標 (例: "group:artifact:version")。
      */
     fun startResolution(coordinate: String) {
-        val regex = "^[a-zA-Z0-9\\.\\-]+:[a-zA-Z0-9\\.\\-]+:[a-zA-Z0-9\\.\\-]+".toRegex()
+        val regex = "^[a-zA-Z0-9.\\-]+:[a-zA-Z0-9.\\-]+:[a-zA-Z0-9.\\-]+".toRegex()
         if (!regex.matches(coordinate)) {
             _uiState.value = _uiState.value.copy(error = "入力形式が正しくありません (例: group:artifact:version)")
             return
