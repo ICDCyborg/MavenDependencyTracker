@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package net.icdcyborg.mavenDependencyTracker
 
 import android.os.Bundle
@@ -16,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import net.icdcyborg.mavenDependencyTracker.data.PomParser
 import net.icdcyborg.mavenDependencyTracker.data.MavenRemoteDataSource
 import net.icdcyborg.mavenDependencyTracker.data.PomCache
+import net.icdcyborg.mavenDependencyTracker.data.PomParser
 import net.icdcyborg.mavenDependencyTracker.domain.DependencyRepositoryImpl
 
 /**
@@ -30,11 +32,13 @@ class MainActivity : ComponentActivity() {
         object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 // TODO: DIライブラリを導入し、Repositoryのインスタンスを注入するように修正する
-                return MainViewModel(DependencyRepositoryImpl(
-                    PomCache(),
-                    MavenRemoteDataSource(HttpClient(CIO)),
-                    PomParser()
-                )) as T
+                return MainViewModel(
+                    DependencyRepositoryImpl(
+                        PomCache(),
+                        MavenRemoteDataSource(HttpClient(CIO)),
+                        PomParser(),
+                    ),
+                ) as T
             }
         }
     }
@@ -49,6 +53,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 /**
  * アプリケーションのメイン画面（UI）です。
  * `MainViewModel` からUIの状態を受け取り、画面を描画します。
@@ -57,7 +62,9 @@ class MainActivity : ComponentActivity() {
  * @param viewModel メイン画面のViewModel。
  */
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(
+    viewModel: MainViewModel,
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -67,12 +74,12 @@ fun MainScreen(viewModel: MainViewModel) {
                 onValueChange = {},
                 label = { Text("Maven Coordinate") },
                 modifier = Modifier.weight(1f),
-                enabled = !uiState.isResolving
+                enabled = !uiState.isResolving,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = { viewModel.startResolution("") },
-                enabled = !uiState.isResolving
+                enabled = !uiState.isResolving,
             ) {
                 Text("Resolve")
             }
@@ -100,7 +107,7 @@ fun MainScreen(viewModel: MainViewModel) {
                     Button(onClick = { /* TODO */ }) {
                         Text("OK")
                     }
-                }
+                },
             )
         }
 

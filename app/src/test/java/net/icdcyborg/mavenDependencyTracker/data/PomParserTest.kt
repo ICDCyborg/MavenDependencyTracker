@@ -6,18 +6,18 @@ import net.icdcyborg.mavenDependencyTracker.domain.ParentData
 import org.junit.jupiter.api.Test
 
 class PomParserTest {
-
     private val parser = PomParser()
 
     @Test
     fun `parse should correctly parse basic POM data`() {
-        val xmlString = """
+        val xmlString =
+            """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
                 <version>1.0.0</version>
             </project>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(xmlString)
         if (result.isFailure) {
@@ -37,7 +37,8 @@ class PomParserTest {
 
     @Test
     fun `parse should correctly parse POM with parent`() {
-        val xmlString = """
+        val xmlString =
+            """
             <project>
                 <parent>
                     <groupId>org.springframework.boot</groupId>
@@ -48,7 +49,7 @@ class PomParserTest {
                 <artifactId>my-app</artifactId>
                 <version>1.0.0</version>
             </project>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(xmlString)
         if (result.isFailure) {
@@ -65,7 +66,8 @@ class PomParserTest {
 
     @Test
     fun `parse should correctly parse POM with dependencies`() {
-        val xmlString = """
+        val xmlString =
+            """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
@@ -85,7 +87,7 @@ class PomParserTest {
                     </dependency>
                 </dependencies>
             </project>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(xmlString)
         if (result.isFailure) {
@@ -103,8 +105,8 @@ class PomParserTest {
                     "junit",
                     "4.13.2",
                     "test",
-                    true
-                )
+                    true,
+                ),
             )
             assertThat(pomData.dependencies!![1]).isEqualTo(
                 Dependency(
@@ -112,15 +114,16 @@ class PomParserTest {
                     "kotlinx-coroutines-core",
                     "1.6.0",
                     null,
-                    false
-                )
+                    null,
+                ),
             )
         }
     }
 
     @Test
     fun `parse should correctly parse POM with properties`() {
-        val xmlString = """
+        val xmlString =
+            """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
@@ -130,7 +133,7 @@ class PomParserTest {
                     <spring.version>5.3.18</spring.version>
                 </properties>
             </project>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(xmlString)
         if (result.isFailure) {
@@ -149,7 +152,8 @@ class PomParserTest {
 
     @Test
     fun `parse should correctly parse POM with dependencyManagement`() {
-        val xmlString = """
+        val xmlString =
+            """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
@@ -166,7 +170,7 @@ class PomParserTest {
                     </dependencies>
                 </dependencyManagement>
             </project>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(xmlString)
         if (result.isFailure) {
@@ -183,8 +187,8 @@ class PomParserTest {
                     "spring-boot-dependencies",
                     "2.7.0",
                     "import",
-                    false
-                )
+                    null,
+                ),
             )
         }
     }
@@ -200,12 +204,13 @@ class PomParserTest {
 
     @Test
     fun `parse should return failure if required fields are missing`() {
-        val xmlString = """
+        val xmlString =
+            """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
             </project>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(xmlString)
 

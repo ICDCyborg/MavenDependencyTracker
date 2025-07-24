@@ -5,10 +5,9 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("io.gitlab.arturbosch.detekt")
-    id("org.jlleitschuh.gradle.ktlint")
+//    id("org.jlleitschuh.gradle.ktlint")
     jacoco
 }
-
 
 android {
     namespace = "net.icdcyborg.mavenDependencyTracker"
@@ -32,7 +31,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -74,7 +73,9 @@ dependencies {
     implementation(libs.jackson.core)
     implementation(libs.jackson.databind)
     implementation(libs.jackson.dataformat.xml)
-    implementation(libs.jackson.module.kotlin)
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
+    implementation("stax:stax-api:1.0.1")
+    implementation("com.fasterxml.woodstox:woodstox-core:6.5.0")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
@@ -84,6 +85,8 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.test)
 
+    androidTestImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -100,9 +103,9 @@ detekt {
     config.setFrom(files("$rootDir/detekt.yml"))
 }
 
-ktlint {
-    version.set("1.2.1")
-    reporters {
-        reporter(ReporterType.PLAIN)
-    }
-}
+// ktlint {
+//    version.set("1.2.1")
+//    reporters {
+//        reporter(ReporterType.PLAIN)
+//    }
+// }

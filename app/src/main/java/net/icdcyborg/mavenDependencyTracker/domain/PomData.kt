@@ -25,20 +25,26 @@ data class PomData(
     @JacksonXmlProperty(localName = "properties")
     val properties: PropertiesSection? = null,
     @JacksonXmlProperty(localName = "dependencyManagement")
-    val dependencyManagement: DependencyManagementSection? = null
+    val dependencyManagement: DependencyManagementSection? = null,
 )
 
 data class PropertiesSection(
-    val map: MutableMap<String, String> = mutableMapOf()
+    val map: MutableMap<String, String> = mutableMapOf(),
 ) {
     @JsonAnySetter
-    fun set(name: String, value: String) {
+    fun set(
+        name: String,
+        value: String,
+    ) {
         map[name] = value
     }
-    fun get() { map }
-    operator fun get(key: String): String? {
-        return map[key]
+
+    fun get() {
+        map
     }
+
+    operator fun get(key: String): String? = map[key]
+
     val length: Int get() = map.size
 }
 
@@ -57,7 +63,7 @@ data class ParentData(
     @JsonProperty("artifactId")
     val artifactId: String,
     @JsonProperty("version")
-    val version: String
+    val version: String,
 )
 
 /**
@@ -73,5 +79,5 @@ data class Dependency(
     @JacksonXmlProperty(localName = "scope")
     val scope: String? = null,
     @JacksonXmlProperty(localName = "optional")
-    val optional: Boolean? = false
+    val optional: Boolean? = null,
 )
