@@ -26,7 +26,9 @@ data class PomData(
     val properties: PropertiesSection? = null,
     @JacksonXmlProperty(localName = "dependencyManagement")
     val dependencyManagement: DependencyManagementSection? = null,
-)
+) {
+    val coordinate: String get() = "$groupId:$artifactId:$version"
+}
 
 data class PropertiesSection(
     val map: MutableMap<String, String> = mutableMapOf(),
@@ -64,7 +66,9 @@ data class ParentData(
     val artifactId: String,
     @JsonProperty("version")
     val version: String,
-)
+) {
+    val coordinate: String get() = "$groupId:$artifactId:$version"
+}
 
 /**
  * 依存関係の情報（groupId, artifactId, version, scope, optional）を保持するデータクラスです。
