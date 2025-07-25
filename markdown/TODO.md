@@ -43,24 +43,24 @@
 - [x] `fun resolveDependencies(coordinate: String): Flow<String>` メソッドの定義
 
 ### 3.2. `DependencyRepositoryImpl.kt`
-- [x] `DependencyRepositoryImpl` の単体テスト作成は行わない
+- [x] `DependencyRepositoryImpl` の単体テスト作成
 - [x] クラス定義と依存関係 (PomCache, MavenRemoteDataSource, PomParser) のインジェクション
-- [ ] `resolveDependencies` メソッドの実装 (`flow { ... }` を使用し、`resolveRecursive` を呼び出す)
-- [ ] `resolveRecursive` メソッドの実装
-    - [ ] 循環参照防止ロジック (`resolved` セット)
-    - [ ] キャッシュの確認と利用 (PomCache)
-    - [ ] `MavenRemoteDataSource` を用いたPOM取得
-    - [ ] `PomParser` を用いたXML解析
-    - [ ] 取得した `PomData` のキャッシュ保存
-    - [ ] 基本情報の抽出とプロパティ解決 (`resolveProperties`)
-    - [ ] `dependencyManagement` を参照したバージョン解決 (`resolveVersionFromDependencyManagement`)
-    - [ ] 依存関係のフィルタリング (optional, scope: test, provided)
-    - [ ] 親POMの再帰的解決
-    - [ ] 解決済み依存関係の `emit`
-    - [ ] 未解決プロパティ/バージョンに対する警告ログ出力と追跡停止
-- [ ] `resolveProperties` メソッドの実装 (プロパティ解決ロジック)
-- [ ] `resolveVersionFromDependencyManagement` メソッドの実装 (バージョン解決ロジック)
-- [ ] 内部データ構造 (`PomData`, `ParentData`, `Dependency`) の定義
+- [x] `resolveDependencies` メソッドの実装 (`flow { ... }` を使用し、`resolveRecursive` を呼び出す)
+- [x] `resolveRecursive` メソッドの実装
+    - [x] 循環参照防止ロジック (`resolved` セット)
+    - [x] キャッシュの確認と利用 (PomCache)
+    - [x] `MavenRemoteDataSource` を用いたPOM取得
+    - [x] `PomParser` を用いたXML解析
+    - [x] 取得した `PomData` のキャッシュ保存
+    - [x] 基本情報の抽出とプロパティ解決 (`resolveProperties`)
+    - [x] `dependencyManagement` を参照したバージョン解決 (`resolveVersionFromDependencyManagement`)
+    - [x] 依存関係のフィルタリング (optional, scope: test, provided)
+    - [x] 親POMの再帰的解決
+    - [x] 解決済み依存関係の `emit`
+    - [x] 未解決プロパティ/バージョンに対する警告ログ出力と追跡停止
+- [x] `resolveProperties` メソッドの実装 (プロパティ解決ロジック)
+- [x] `resolveVersionFromDependencyManagement` メソッドの実装 (バージョン解決ロジック)
+- [x] 内部データ構造 (`PomData`, `ParentData`, `Dependency`) の定義
 
 ## 4. Data Layer
 

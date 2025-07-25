@@ -43,7 +43,8 @@ class MainViewModelTest {
         coEvery { dependencyRepository.resolveDependencies(coordinate) } returns flowOf(*dependencies.toTypedArray())
 
         viewModel.uiState.test {
-            viewModel.startResolution(coordinate)
+            viewModel.onMavenCoordinateInputChange(coordinate)
+            viewModel.startResolution()
 
             assertThat(awaitItem().isResolving).isFalse()
             assertThat(awaitItem().isResolving).isTrue()
@@ -61,7 +62,8 @@ class MainViewModelTest {
         val invalidCoordinate = "invalid"
 
         viewModel.uiState.test {
-            viewModel.startResolution(invalidCoordinate)
+            viewModel.onMavenCoordinateInputChange(invalidCoordinate)
+            viewModel.startResolution()
             skipItems(1)
             val state = awaitItem()
             assertThat(state.error).isEqualTo("入力形式が正しくありません (例: group:artifact:version)")

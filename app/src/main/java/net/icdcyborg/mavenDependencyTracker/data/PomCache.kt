@@ -1,33 +1,32 @@
 package net.icdcyborg.mavenDependencyTracker.data
 
-import net.icdcyborg.mavenDependencyTracker.domain.PomData
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * 解析されたPOMデータ（[PomData]）をメモリ上にキャッシュするクラスです。
- * キーとしてMaven座標（String）、値として[PomData]を保持します。
+ * POMのXML文字列をメモリ上にキャッシュするクラスです。
+ * キーとしてMaven座標（String）、値としてXML文字列（String）を保持します。
  */
 class PomCache {
-    private val cache = ConcurrentHashMap<String, PomData>()
+    private val cache = ConcurrentHashMap<String, String>()
 
     /**
-     * 指定されたMaven座標に対応する[PomData]をキャッシュから取得します。
+     * 指定されたMaven座標に対応するPOMのXML文字列をキャッシュから取得します。
      *
-     * @param coordinate 取得するPOMデータのMaven座標。
-     * @return キャッシュに存在する[PomData]、存在しない場合はnull。
+     * @param coordinate 取得するPOMのMaven座標。
+     * @return キャッシュに存在するXML文字列、存在しない場合はnull。
      */
-    fun get(coordinate: String): PomData? {
+    fun get(coordinate: String): String? {
         return cache[coordinate]
     }
 
     /**
-     * 指定されたMaven座標と[PomData]をキャッシュに保存します。
+     * 指定されたMaven座標とPOMのXML文字列をキャッシュに保存します。
      *
-     * @param coordinate 保存するPOMデータのMaven座標。
-     * @param pomData 保存する[PomData]オブジェクト。
+     * @param coordinate 保存するPOMのMaven座標。
+     * @param xmlString 保存するXML文字列。
      */
-    fun put(coordinate: String, pomData: PomData) {
-        cache[coordinate] = pomData
+    fun put(coordinate: String, xmlString: String) {
+        cache[coordinate] = xmlString
     }
 
     /**

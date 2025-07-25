@@ -1,7 +1,6 @@
 package net.icdcyborg.mavenDependencyTracker.data
 
 import com.google.common.truth.Truth.assertThat
-import net.icdcyborg.mavenDependencyTracker.domain.PomData
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -15,30 +14,30 @@ class PomCacheTest {
     }
 
     @Test
-    fun `put and get should store and retrieve PomData`() {
+    fun `put and get should store and retrieve pom xml`() {
         val coordinate = "group:artifact:version"
-        val pomData = PomData("group", "artifact", "version", null, emptyList(), properties = null)
+        val pomXml = "<project></project>"
 
-        pomCache.put(coordinate, pomData)
-        val retrievedPomData = pomCache.get(coordinate)
+        pomCache.put(coordinate, pomXml)
+        val retrievedPomXml = pomCache.get(coordinate)
 
-        assertThat(retrievedPomData).isEqualTo(pomData)
+        assertThat(retrievedPomXml).isEqualTo(pomXml)
     }
 
     @Test
     fun `get should return null if coordinate not in cache`() {
         val coordinate = "nonexistent:coordinate:1.0"
-        val retrievedPomData = pomCache.get(coordinate)
+        val retrievedPomXml = pomCache.get(coordinate)
 
-        assertThat(retrievedPomData).isNull()
+        assertThat(retrievedPomXml).isNull()
     }
 
     @Test
     fun `contains should return true if coordinate in cache`() {
         val coordinate = "group:artifact:version"
-        val pomData = PomData("group", "artifact", "version", null, emptyList(), properties = null)
+        val pomXml = "<project></project>"
 
-        pomCache.put(coordinate, pomData)
+        pomCache.put(coordinate, pomXml)
 
         assertThat(pomCache.contains(coordinate)).isTrue()
     }

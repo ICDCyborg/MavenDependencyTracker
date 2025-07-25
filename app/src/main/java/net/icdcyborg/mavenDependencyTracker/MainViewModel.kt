@@ -21,7 +21,7 @@ import net.icdcyborg.mavenDependencyTracker.domain.DependencyRepository
 data class UiState(
     val isResolving: Boolean = false,
     val resolvedDependencies: List<String> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
 )
 
 /**
@@ -30,20 +30,33 @@ data class UiState(
  *
  * @property dependencyRepository 依存関係を解決するためのリポジトリです。
  */
-class MainViewModel(private val dependencyRepository: DependencyRepository) : ViewModel() {
-
+class MainViewModel(
+    private val dependencyRepository: DependencyRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private var resolutionJob: Job? = null
 
+    // 入力された座標の文字列を保持する
+    private val _mavenCoordinateInput = MutableStateFlow("")
+    val mavenCoordinateInput: StateFlow<String> = _mavenCoordinateInput.asStateFlow()
+
+    /**
+     * 入力欄の更新に伴って文字列を受け取る
+     *
+     * @param newInput Maven座標 (例: "group:artifact:version")。
+     */
+    fun onMavenCoordinateInputChange(newInput: String) {
+        _mavenCoordinateInput.value = newInput
+    }
+
     /**
      * 指定されたMaven座標の依存関係解決を開始します。
-     *
-     * @param coordinate Maven座標 (例: "group:artifact:version")。
      */
-    fun startResolution(coordinate: String) {
-        val regex = "^[a-zA-Z0-9.\\-]+:[a-zA-Z0-9.\\-]+:[a-zA-Z0-9.\\-]+".toRegex()
+    fun startResolution() {
+        val coordinate = _mavenCoordinateInput.value
+        val regex = "^[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+".toRegex()
         if (!regex.matches(coordinate)) {
             _uiState.value = _uiState.value.copy(error = "入力形式が正しくありません (例: group:artifact:version)")
             return
@@ -52,20 +65,21 @@ class MainViewModel(private val dependencyRepository: DependencyRepository) : Vi
         resolutionJob?.cancel()
         _uiState.value = UiState(isResolving = true)
 
-        resolutionJob = viewModelScope.launch {
-            dependencyRepository.resolveDependencies(coordinate)
-                .catch { e ->
-                    _uiState.value = _uiState.value.copy(error = e.message)
-                }
-                .onCompletion {
-                    _uiState.value = _uiState.value.copy(isResolving = false)
-                }
-                .collect {
-                    _uiState.value = _uiState.value.copy(
-                        resolvedDependencies = _uiState.value.resolvedDependencies + it
-                    )
-                }
-        }
+        resolutionJob =
+            viewModelScope.launch {
+                dependencyRepository
+                    .resolveDependencies(coordinate)
+                    .catch { e ->
+                        _uiState.value = _uiState.value.copy(error = e.message)
+                    }.onCompletion {
+                        _uiState.value = _uiState.value.copy(isResolving = false)
+                    }.collect {
+                        _uiState.value =
+                            _uiState.value.copy(
+                                resolvedDependencies = _uiState.value.resolvedDependencies + it,
+                            )
+                    }
+            }
     }
 
     /**
@@ -73,5 +87,12 @@ class MainViewModel(private val dependencyRepository: DependencyRepository) : Vi
      */
     fun cancelResolution() {
         resolutionJob?.cancel()
+    }
+
+    /**
+     * UIに表示されているエラーをクリアします。
+     */
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
     }
 }

@@ -20,6 +20,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import net.icdcyborg.mavenDependencyTracker.data.MavenRemoteDataSource
 import net.icdcyborg.mavenDependencyTracker.data.PomCache
+import net.icdcyborg.mavenDependencyTracker.data.PomDataSource
 import net.icdcyborg.mavenDependencyTracker.data.PomParser
 import net.icdcyborg.mavenDependencyTracker.domain.DependencyRepositoryImpl
 
@@ -34,8 +35,10 @@ class MainActivity : ComponentActivity() {
                 // TODO: DIライブラリを導入し、Repositoryのインスタンスを注入するように修正する
                 return MainViewModel(
                     DependencyRepositoryImpl(
-                        PomCache(),
-                        MavenRemoteDataSource(HttpClient(CIO)),
+                        PomDataSource(
+                            PomCache(),
+                            MavenRemoteDataSource(HttpClient(CIO)),
+                        ),
                         PomParser(),
                     ),
                 ) as T
@@ -66,19 +69,22 @@ fun MainScreen(
     viewModel: MainViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val mavenCoordinateInput by viewModel.mavenCoordinateInput.collectAsState() // ViewModelから入力ステートを取得
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = mavenCoordinateInput, // ViewModelのステートをvalueに設定
+                onValueChange = { newValue ->
+                    viewModel.onMavenCoordinateInputChange(newValue) // ユーザーの入力をViewModelに通知してステートを更新
+                },
                 label = { Text("Maven Coordinate") },
                 modifier = Modifier.weight(1f),
                 enabled = !uiState.isResolving,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick = { viewModel.startResolution("") },
+                onClick = { viewModel.startResolution() },
                 enabled = !uiState.isResolving,
             ) {
                 Text("Resolve")
@@ -100,11 +106,11 @@ fun MainScreen(
 
         uiState.error?.let {
             AlertDialog(
-                onDismissRequest = { /* TODO */ },
+                onDismissRequest = { viewModel.clearError() },
                 title = { Text("Error") },
                 text = { Text(it) },
                 confirmButton = {
-                    Button(onClick = { /* TODO */ }) {
+                    Button(onClick = { viewModel.clearError() }) {
                         Text("OK")
                     }
                 },
