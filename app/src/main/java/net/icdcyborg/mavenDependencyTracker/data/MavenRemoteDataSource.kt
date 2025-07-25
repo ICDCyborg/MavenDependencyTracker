@@ -50,7 +50,11 @@ class MavenRemoteDataSource(private val httpClient: HttpClient) {
                 }
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            if (e is java.net.UnknownHostException) {
+                Result.failure(Exception("Failed to resolve host for Maven repository. Please check your network connection or the repository URL.", e))
+            } else {
+                Result.failure(e)
+            }
         }
     }
 }
