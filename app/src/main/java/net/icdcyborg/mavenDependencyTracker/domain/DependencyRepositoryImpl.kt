@@ -35,6 +35,7 @@ class DependencyRepositoryImpl(
         resolvedDependencies: MutableSet<String>,
     ): Flow<String> =
         flow {
+            // 座標が解決済み（循環参照または依存関係の重複）ならストップ
             if (resolvedDependencies.contains(coordinate)) {
                 return@flow
             }
@@ -42,12 +43,23 @@ class DependencyRepositoryImpl(
             val parentChainResult = resolveParentChain(coordinate)
             val pomDataList = parentChainResult.getOrThrow()
             if (pomDataList.isEmpty()) return@flow
-            resolvedDependencies.add(coordinate)
+
+            // 親チェーンの各POMをemit
+            pomDataList.forEach { pomData ->
+                val currentCoordinate = pomData.coordinate
+                if (!resolvedDependencies.contains(currentCoordinate)) {
+                    emit(currentCoordinate)
+                    resolvedDependencies.add(currentCoordinate)
+                }
+            }
 
             val mergedPomData = mergePomData(pomDataList)
 
-            val currentCoordinate = "${mergedPomData.groupId}:${mergedPomData.artifactId}:${mergedPomData.version}"
-            emit(currentCoordinate)
+            val mergedCoordinate = mergedPomData.coordinate
+            if (!resolvedDependencies.contains(mergedCoordinate)) {
+                emit(mergedCoordinate)
+                resolvedDependencies.add(mergedCoordinate)
+            }
 
             val dependencies =
                 mergedPomData.dependencies
@@ -58,7 +70,7 @@ class DependencyRepositoryImpl(
                     .filterNot { it.groupId.isNullOrBlank() || it.artifactId.isNullOrBlank() || it.version.isNullOrBlank() }
 
             for (dependency in dependencies) {
-                val depCoordinate = "${dependency.groupId}:${dependency.artifactId}:${dependency.version}"
+                val depCoordinate = dependency.coordinate
                 emitAll(resolveRecursive(depCoordinate, resolvedDependencies))
             }
         }
@@ -67,6 +79,7 @@ class DependencyRepositoryImpl(
         coordinate: String,
         resolvedParents: MutableSet<String> = mutableSetOf(),
     ): Result<List<PomData>> {
+        // 座標が既に親子関係に含まれる（循環参照）ならエラー返却
         if (resolvedParents.contains(coordinate)) {
             return Result.failure(CircularReferenceException("Circular reference detected for $coordinate"))
         }
@@ -74,20 +87,21 @@ class DependencyRepositoryImpl(
 
         val pomXmlResult = pomDataSource.getPomXml(coordinate)
 
-        val pomDataResult = pomXmlResult.mapCatching {
-            pomParser.parse(it).getOrThrow()
-        }
+        val pomDataResult =
+            pomXmlResult.mapCatching {
+                pomParser.parse(it).getOrThrow()
+            }
 
         pomDataResult.onFailure { return Result.failure(it) }
         val pomData = pomDataResult.getOrThrow()
+        println("PomData successfully parsed. $pomData")
 
         return if (
-            pomData.parent != null &&
-            "${pomData.parent.groupId}:${pomData.parent.artifactId}:${pomData.parent.version}" != coordinate
+            pomData.parent != null
         ) {
-            val parentCoordinate = "${pomData.parent.groupId}:${pomData.parent.artifactId}:${pomData.parent.version}"
-            resolveParentChain(parentCoordinate, resolvedParents).map { parentChainList ->
-                parentChainList + pomData
+            val parentCoordinate = pomData.parent.coordinate
+            resolveParentChain(parentCoordinate, resolvedParents).mapCatching {
+                listOf(pomData) + it
             }
         } else {
             Result.success(listOf(pomData))
@@ -166,4 +180,3 @@ class DependencyRepositoryImpl(
         return dependency.copy(version = managedVersion)
     }
 }
-

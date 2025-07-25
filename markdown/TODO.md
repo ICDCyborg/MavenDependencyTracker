@@ -65,21 +65,21 @@
 ## 4. Data Layer
 
 ### 4.1. `PomCache.kt`
-- [ ] `PomCache` の単体テスト作成
-- [ ] クラス定義とシングルトンインスタンスとしての提供
-- [ ] `ConcurrentHashMap` を用いたキャッシュの実装 (`cache` プロパティ)
-- [ ] `get(coordinate: String)`, `put(coordinate: String, pomData: PomData)`, `contains(coordinate: String)` メソッドの実装
+- [x] `PomCache` の単体テスト作成
+- [x] クラス定義とシングルトンインスタンスとしての提供
+- [x] `ConcurrentHashMap` を用いたキャッシュの実装 (`cache` プロパティ)
+- [x] `get(coordinate: String)`, `put(coordinate: String, pomData: PomData)`, `contains(coordinate: String)` メソッドの実装
 
 ### 4.2. `MavenRemoteDataSource.kt`
-- [ ] `MavenRemoteDataSource` の単体テスト作成
-- [ ] クラス定義と `HttpClient` のインジェクション
-- [ ] `BASE_URL` の定義
-- [ ] `getPomXml(coordinate: String)` メソッドの実装
-    - [ ] POMファイルURL生成ロジック
-    - [ ] Ktor `HttpClient` を用いたHTTP GETリクエスト
-    - [ ] リクエスト失敗時の1秒間隔1回リトライロジック
-    - [ ] `Result` 型での成功/失敗の返却
-    - [ ] HTTP通信の成否のデバッグログ出力
+- [x] `MavenRemoteDataSource` の単体テスト作成
+- [x] クラス定義と `HttpClient` のインジェクション
+- [x] `BASE_URL` の定義
+- [x] `getPomXml(coordinate: String)` メソッドの実装
+    - [x] POMファイルURL生成ロジック
+    - [x] Ktor `HttpClient` を用いたHTTP GETリクエスト
+    - [x] リクエスト失敗時の1秒間隔1回リトライロジック
+    - [x] `Result` 型での成功/失敗の返却
+    - [x] HTTP通信の成否のデバッグログ出力
 
 ### 4.3. `PomParser.kt`
 - [x] `PomParser` の単体テスト作成

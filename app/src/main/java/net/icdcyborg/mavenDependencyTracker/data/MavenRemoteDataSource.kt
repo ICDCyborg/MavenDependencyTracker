@@ -12,8 +12,9 @@ import kotlinx.coroutines.delay
  *
  * @param httpClient Ktorの[HttpClient]インスタンス。
  */
-class MavenRemoteDataSource(private val httpClient: HttpClient) {
-
+class MavenRemoteDataSource(
+    private val httpClient: HttpClient,
+) {
     private val baseUrl = "https://repo1.maven.org/maven2/"
 
     /**
@@ -34,12 +35,14 @@ class MavenRemoteDataSource(private val httpClient: HttpClient) {
 
         val path = "${groupId.replace('.', '/')}/$artifactId/$version/$artifactId-$version.pom"
         val url = "$baseUrl$path"
+        println(url)
 
         return try {
             val response: HttpResponse = httpClient.get(url)
             if (response.status == HttpStatusCode.OK) {
                 Result.success(response.body<String>())
             } else {
+                println("GET failed. Retrying...")
                 // Retry once after 1 second
                 delay(1000)
                 val retryResponse: HttpResponse = httpClient.get(url)
@@ -50,11 +53,7 @@ class MavenRemoteDataSource(private val httpClient: HttpClient) {
                 }
             }
         } catch (e: Exception) {
-            if (e is java.net.UnknownHostException) {
-                Result.failure(Exception("Failed to resolve host for Maven repository. Please check your network connection or the repository URL.", e))
-            } else {
-                Result.failure(e)
-            }
+            Result.failure(e)
         }
     }
 }

@@ -84,4 +84,6 @@ data class Dependency(
     val scope: String? = null,
     @JacksonXmlProperty(localName = "optional")
     val optional: Boolean? = null,
-)
+) {
+    val coordinate: String get() = "$groupId:$artifactId:$version"
+}
