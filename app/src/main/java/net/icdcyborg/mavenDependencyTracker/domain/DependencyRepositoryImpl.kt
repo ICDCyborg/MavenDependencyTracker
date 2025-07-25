@@ -40,10 +40,6 @@ class DependencyRepositoryImpl(
             }
 
             val parentChainResult = resolveParentChain(coordinate)
-            parentChainResult.onFailure {
-                throw it // Propagate error to the collector
-            }
-
             val pomDataList = parentChainResult.getOrThrow()
             if (pomDataList.isEmpty()) return@flow
             resolvedDependencies.add(coordinate)
