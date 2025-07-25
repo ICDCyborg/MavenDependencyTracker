@@ -60,12 +60,13 @@ class DependencyRepositoryImpl(
                 emit(mergedCoordinate)
                 resolvedDependencies.add(mergedCoordinate)
             }
+            println("pom merged. $mergedPomData")
 
             val dependencies =
                 mergedPomData.dependencies
                     .orEmpty()
-                    .map { resolveProperties(it, mergedPomData.properties) }
                     .map { resolveVersionFromDependencyManagement(it, mergedPomData.dependencyManagement) }
+                    .map { resolveProperties(it, mergedPomData) }
                     .filterNot { it.scope == "test" || it.scope == "provided" || it.optional == true }
                     .filterNot { it.groupId.isNullOrBlank() || it.artifactId.isNullOrBlank() || it.version.isNullOrBlank() }
 
@@ -108,12 +109,9 @@ class DependencyRepositoryImpl(
         }
     }
 
-    private fun mergePomData(pomDataList: List<PomData>): PomData {
-        if (pomDataList.isEmpty()) {
-            throw IllegalArgumentException("pomDataList cannot be empty")
-        }
-        return pomDataList.reduce { parent, child ->
-            val mergedProperties = (parent.properties?.map.orEmpty()) + (child.properties?.map.orEmpty())
+    private fun mergePomData(pomDataList: List<PomData>): PomData =
+        pomDataList.reduce { child, parent ->
+            val mergedProperties = (child.properties?.map.orEmpty()) + (parent.properties?.map.orEmpty())
 
             val parentDepManagement = parent.dependencyManagement?.dependencies.orEmpty()
             val childDepManagement = child.dependencyManagement?.dependencies.orEmpty()
@@ -137,31 +135,32 @@ class DependencyRepositoryImpl(
                 dependencies = finalDepsMap.values.toList(),
             )
         }
-    }
 
     private fun resolveProperties(
         dependency: Dependency,
-        properties: PropertiesSection?,
-    ): Dependency {
-        if (properties == null) return dependency
-        val props = properties.map
-        return dependency.copy(
-            groupId = resolveProperty(dependency.groupId, props),
-            artifactId = resolveProperty(dependency.artifactId, props),
-            version = resolveProperty(dependency.version, props),
-            scope = resolveProperty(dependency.scope, props),
+        pomData: PomData,
+    ): Dependency =
+        dependency.copy(
+            groupId = resolveProperty(dependency.groupId, pomData),
+            artifactId = resolveProperty(dependency.artifactId, pomData),
+            version = resolveProperty(dependency.version, pomData),
         )
-    }
 
     private fun resolveProperty(
         value: String?,
-        properties: Map<String, String>,
+        pomData: PomData,
     ): String? {
         if (value == null || !value.startsWith("\${") || !value.endsWith("}")) {
             return value
         }
-        val key = value.substring(2, value.length - 1)
-        return properties[key] ?: value
+        println("resolving property: $value")
+        val properties = pomData.properties?.map
+        return when (val key = value.substring(2, value.length - 1)) {
+            "project.version" -> pomData.version
+            "project.groupId" -> pomData.groupId
+            "project.artifactId" -> pomData.artifactId
+            else -> properties?.get(key) ?: value
+        }
     }
 
     private fun resolveVersionFromDependencyManagement(
