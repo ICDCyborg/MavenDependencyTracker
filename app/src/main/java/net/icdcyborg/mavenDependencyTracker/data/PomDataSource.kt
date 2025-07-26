@@ -5,7 +5,7 @@ import kotlin.Result
 /**
  * POMファイルを取得するためのデータソースクラス。
  *
- * このクラスは、指定されたMaven座標に対応するPOMのXML文字列を効率的に取得する責務を負います。
+ * このクラスは、指定されたMaven座標に対応するPOMのXML文字列を取得します。
  * まず[PomCache]を検索し、キャッシュに存在しない場合は[MavenRemoteDataSource]からリモートで取得を試みます。
  * リモート取得に成功した場合、その結果をキャッシュに保存してから返します。
  *
@@ -40,7 +40,7 @@ class PomDataSource(
             },
             onFailure = { exception ->
                 Result.failure(exception)
-            }
+            },
         )
     }
 }

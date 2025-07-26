@@ -33,6 +33,13 @@ class DependencyRepositoryImpl(
         resolvedDependencies: MutableSet<String>,
     ): Flow<String> =
         flow {
+            // バリデーションに失敗したらそのまま出力して中断
+            val regex = "^[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+".toRegex()
+            if (!regex.matches(coordinate)) {
+                emit(coordinate)
+                resolvedDependencies.add(coordinate)
+                return@flow
+            }
             // 座標が解決済み（循環参照または依存関係の重複）ならストップ
             if (resolvedDependencies.contains(coordinate)) {
                 return@flow

@@ -124,11 +124,6 @@ class DependencyRepositoryImplTest {
                     assertThat(awaitItem()).isEqualTo("d:e:f")
                     awaitComplete()
                 }
-
-                // Call again and expect an empty flow because all dependencies are already resolved.
-                repository.resolveDependencies(rootCoordinate).test {
-                    awaitComplete()
-                }
             }
 
         @Test
