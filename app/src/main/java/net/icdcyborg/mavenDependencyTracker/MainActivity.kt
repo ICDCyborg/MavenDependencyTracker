@@ -9,9 +9,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,13 +28,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.AnnotatedString
+import net.icdcyborg.mavenDependencyTracker.util.highlightPomXml
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.flow.collect
@@ -151,13 +153,14 @@ fun MainScreen(
             }
 
             Box(modifier = Modifier.weight(1f)) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp, end = 8.dp)) {
                     items(uiState.resolvedDependencies) {
                         Text(
                             text = it,
-                            modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
-                                detectTapGestures(onLongPress = { _ -> viewModel.onDependencyLongClicked(it) })
-                            },
+                            modifier =
+                                Modifier.fillMaxWidth().pointerInput(Unit) {
+                                    detectTapGestures(onLongPress = { _ -> viewModel.onDependencyLongClicked(it) })
+                                },
                         )
                     }
                 }
@@ -180,7 +183,7 @@ fun MainScreen(
                     title = { Text("POM Content") },
                     text = {
                         Column {
-                            Text(text = uiState.pomContent!!, modifier = Modifier.verticalScroll(rememberScrollState()))
+                            Text(text = highlightPomXml(uiState.pomContent!!), modifier = Modifier.verticalScroll(rememberScrollState()))
                         }
                     },
                     confirmButton = {
