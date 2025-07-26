@@ -23,11 +23,9 @@ class DependencyRepositoryImpl(
     private val pomDataSource: PomDataSource,
     private val pomParser: PomParser,
 ) : DependencyRepository {
-    private val resolvedDependencies = mutableSetOf<String>()
-
     override fun resolveDependencies(coordinate: String): Flow<String> =
         flow {
-            emitAll(resolveRecursive(coordinate, resolvedDependencies))
+            emitAll(resolveRecursive(coordinate, mutableSetOf<String>()))
         }
 
     private suspend fun resolveRecursive(
