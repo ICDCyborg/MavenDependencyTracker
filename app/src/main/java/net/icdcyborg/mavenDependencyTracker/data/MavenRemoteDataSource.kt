@@ -3,6 +3,7 @@ package net.icdcyborg.mavenDependencyTracker.data
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.head
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
@@ -54,6 +55,34 @@ class MavenRemoteDataSource(
             }
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    /**
+     * 指定されたMaven座標に対応するJARファイルが存在するかどうかをチェックします。
+     *
+     * @param coordinate チェックするJARのMaven座標 (例: "group:artifact:version")。
+     * @return JARファイルが存在する場合はtrue、それ以外の場合はfalse。
+     */
+    suspend fun checkJarExists(coordinate: String): Boolean {
+        val parts = coordinate.split(":")
+        if (parts.size != 3) {
+            return false
+        }
+        val groupId = parts[0]
+        val artifactId = parts[1]
+        val version = parts[2]
+
+        val path = "${groupId.replace('.', '/')}/$artifactId/$version/$artifactId-$version.jar"
+        val url = "$baseUrl$path"
+        println("Checking JAR: $url")
+
+        return try {
+            val response: HttpResponse = httpClient.head(url)
+            response.status == HttpStatusCode.OK
+        } catch (e: Exception) {
+            println("Error checking JAR existence for $coordinate: ${e.message}")
+            false
         }
     }
 }

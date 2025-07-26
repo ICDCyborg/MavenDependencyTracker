@@ -28,12 +28,15 @@ class DependencyRepositoryImpl(
             emitAll(resolveRecursive(coordinate, mutableSetOf<String>()))
         }
 
-    override fun getPom(coordinate: String): Flow<String> = flow {
-        val pomXmlResult = pomDataSource.getPomXml(coordinate)
-        pomXmlResult.onSuccess { pomXml ->
-            emit(pomXml)
+    override fun getPom(coordinate: String): Flow<String> =
+        flow {
+            val pomXmlResult = pomDataSource.getPomXml(coordinate)
+            pomXmlResult.onSuccess { pomXml ->
+                emit(pomXml)
+            }
         }
-    }
+
+    override suspend fun checkJarExists(coordinate: String): Boolean = pomDataSource.checkJarExists(coordinate)
 
     private suspend fun resolveRecursive(
         coordinate: String,

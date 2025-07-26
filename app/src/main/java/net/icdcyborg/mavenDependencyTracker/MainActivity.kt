@@ -31,9 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.AnnotatedString
-import net.icdcyborg.mavenDependencyTracker.util.highlightPomXml
+import androidx.compose.ui.unit.dp
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.flow.collect
@@ -43,6 +42,7 @@ import net.icdcyborg.mavenDependencyTracker.data.PomCache
 import net.icdcyborg.mavenDependencyTracker.data.PomDataSource
 import net.icdcyborg.mavenDependencyTracker.data.PomParser
 import net.icdcyborg.mavenDependencyTracker.domain.DependencyRepositoryImpl
+import net.icdcyborg.mavenDependencyTracker.util.highlightPomXml
 
 /**
  * アプリケーションのメインアクティビティです。
@@ -113,7 +113,8 @@ fun MainScreen(
                     onValueChange = { newValue ->
                         viewModel.onMavenCoordinateInputChange(newValue) // ユーザーの入力をViewModelに通知してステートを更新
                     },
-                    label = { Text("ex) org.example:example:v1.0") },
+                    label = { Text("Maven Coordinate") },
+                    placeholder = { Text("ex) org.example:example:v1.0") },
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isResolving,
                 )

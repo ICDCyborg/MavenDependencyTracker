@@ -22,4 +22,12 @@ interface DependencyRepository {
      * @return POMファイルの内容をemitするFlow。POMが見つからない場合は空のFlow。
      */
     fun getPom(coordinate: String): Flow<String>
+
+    /**
+     * 指定されたMaven座標に対応するJARファイルが存在するかどうかをチェックします。
+     *
+     * @param coordinate チェックするJARのMaven座標。
+     * @return JARファイルが存在する場合はtrue、それ以外の場合はfalse。
+     */
+    suspend fun checkJarExists(coordinate: String): Boolean
 }

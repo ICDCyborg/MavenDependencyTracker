@@ -3,6 +3,7 @@ package net.icdcyborg.mavenDependencyTracker
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import net.icdcyborg.mavenDependencyTracker.domain.DependencyRepository
@@ -78,7 +78,22 @@ class MainViewModel(
                     .catch { e ->
                         _uiState.value = _uiState.value.copy(error = e.message)
                     }.onCompletion {
-                        _uiState.value = _uiState.value.copy(isResolving = false)
+                        println(_uiState.value.resolvedDependencies)
+                        val dependenciesWithJar =
+                            _uiState.value.resolvedDependencies.map {
+                                if (dependencyRepository.checkJarExists(it)) {
+                                    "$it (jar)"
+                                } else {
+                                    it
+                                }
+                            }
+                        println(dependenciesWithJar)
+                        _uiState.value =
+                            _uiState.value.copy(
+                                isResolving = false,
+                                resolvedDependencies = dependenciesWithJar,
+                            )
+                        println("complete")
                     }.collect {
                         _uiState.value =
                             _uiState.value.copy(
@@ -130,15 +145,16 @@ class MainViewModel(
      * @param dependency ロングタップされた依存関係の文字列。
      */
     fun onDependencyLongClicked(dependency: String) {
+        val cleanedDependency = dependency.replace(" (jar)", "")
         val regex = "^[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+".toRegex()
-        if (!regex.matches(dependency)) {
+        if (!regex.matches(cleanedDependency)) {
             // 不正な文字列の場合は何もしない
             return
         }
 
         viewModelScope.launch {
             try {
-                val pom = dependencyRepository.getPom(dependency).singleOrNull()
+                val pom = dependencyRepository.getPom(cleanedDependency).singleOrNull()
                 if (pom != null) {
                     _uiState.value = _uiState.value.copy(pomContent = pom, showPomDialog = true)
                 } else {

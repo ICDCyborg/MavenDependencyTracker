@@ -43,4 +43,14 @@ class PomDataSource(
             },
         )
     }
+
+    /**
+     * 指定されたMaven座標に対応するJARファイルが存在するかどうかをチェックします。
+     *
+     * @param coordinate チェックするJARのMaven座標。
+     * @return JARファイルが存在する場合はtrue、それ以外の場合はfalse。
+     */
+    suspend fun checkJarExists(coordinate: String): Boolean {
+        return mavenRemoteDataSource.checkJarExists(coordinate)
+    }
 }
