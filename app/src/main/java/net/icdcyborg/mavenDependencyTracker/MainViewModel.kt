@@ -2,7 +2,10 @@ package net.icdcyborg.mavenDependencyTracker
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,6 +29,8 @@ data class UiState(
     val isResolving: Boolean = false,
     val resolvedDependencies: List<String> = emptyList(),
     val error: String? = null,
+    val pomTitle: String? = null,
+    val pomLink: String? = null,
     val pomContent: String? = null,
     val showPomDialog: Boolean = false,
 )
@@ -78,22 +83,24 @@ class MainViewModel(
                     .catch { e ->
                         _uiState.value = _uiState.value.copy(error = e.message)
                     }.onCompletion {
-                        println(_uiState.value.resolvedDependencies)
-                        val dependenciesWithJar =
+                        println("complete")
+                        val deferredResults: List<Deferred<String>> =
                             _uiState.value.resolvedDependencies.map {
-                                if (dependencyRepository.checkJarExists(it)) {
-                                    "$it (jar)"
-                                } else {
-                                    it
+                                async {
+                                    if (dependencyRepository.checkJarExists(it)) {
+                                        "$it (jar)"
+                                    } else {
+                                        it
+                                    }
                                 }
                             }
-                        println(dependenciesWithJar)
+                        val dependenciesWithJar = deferredResults.awaitAll()
+
                         _uiState.value =
                             _uiState.value.copy(
                                 isResolving = false,
                                 resolvedDependencies = dependenciesWithJar,
                             )
-                        println("complete")
                     }.collect {
                         _uiState.value =
                             _uiState.value.copy(
@@ -119,12 +126,6 @@ class MainViewModel(
 
     private val _copyEvent = MutableSharedFlow<String>()
     val copyEvent: SharedFlow<String> = _copyEvent.asSharedFlow()
-
-    private val _pomContent = MutableStateFlow<String?>(null)
-    val pomContent: StateFlow<String?> = _pomContent.asStateFlow()
-
-    private val _showPomDialog = MutableStateFlow(false)
-    val showPomDialog: StateFlow<Boolean> = _showPomDialog.asStateFlow()
 
     /**
      * 解決済みの依存関係をクリップボードにコピーするイベントを発生させます。
@@ -154,9 +155,16 @@ class MainViewModel(
 
         viewModelScope.launch {
             try {
+                val url = dependencyRepository.getUrlFromCoordinate(cleanedDependency)
                 val pom = dependencyRepository.getPom(cleanedDependency).singleOrNull()
                 if (pom != null) {
-                    _uiState.value = _uiState.value.copy(pomContent = pom, showPomDialog = true)
+                    _uiState.value =
+                        _uiState.value.copy(
+                            pomTitle = cleanedDependency,
+                            pomLink = url,
+                            pomContent = pom,
+                            showPomDialog = true,
+                        )
                 } else {
                     // Pomが取得できなかった場合は何もしない
                 }
@@ -170,6 +178,12 @@ class MainViewModel(
      * POM表示ダイアログを閉じます。
      */
     fun onDismissPomDialog() {
-        _uiState.value = _uiState.value.copy(showPomDialog = false, pomContent = null)
+        _uiState.value =
+            _uiState.value.copy(
+                showPomDialog = false,
+                pomTitle = null,
+                pomLink = null,
+                pomContent = null,
+            )
     }
 }

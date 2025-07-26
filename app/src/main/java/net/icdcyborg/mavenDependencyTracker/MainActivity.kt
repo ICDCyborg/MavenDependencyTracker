@@ -49,6 +49,7 @@ import net.icdcyborg.mavenDependencyTracker.util.highlightPomXml
  * このアクティビティは、UIの表示とユーザー操作の受付を担当します。
  */
 class MainActivity : ComponentActivity() {
+    @Suppress("UNCHECKED_CAST")
     private val viewModel: MainViewModel by viewModels {
         object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
@@ -181,7 +182,9 @@ fun MainScreen(
             if (uiState.showPomDialog && uiState.pomContent != null) {
                 AlertDialog(
                     onDismissRequest = { viewModel.onDismissPomDialog() },
-                    title = { Text("POM Content") },
+                    title = {
+                        Text(uiState.pomTitle!!)
+                    },
                     text = {
                         Column {
                             Text(text = highlightPomXml(uiState.pomContent!!), modifier = Modifier.verticalScroll(rememberScrollState()))

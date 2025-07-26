@@ -50,7 +50,17 @@ class PomDataSource(
      * @param coordinate チェックするJARのMaven座標。
      * @return JARファイルが存在する場合はtrue、それ以外の場合はfalse。
      */
-    suspend fun checkJarExists(coordinate: String): Boolean {
-        return mavenRemoteDataSource.checkJarExists(coordinate)
-    }
+    suspend fun checkJarExists(coordinate: String): Boolean = mavenRemoteDataSource.checkJarExists(coordinate)
+
+    /**
+     * 指定されたMaven座標に対応するURLを返します。
+     *
+     * @param coordinate Maven座標 (例: "group:artifact:version")。
+     * @param suffix 拡張子を含む後置詞 (例: ".pom")。
+     * @return URL、もしくはNull
+     */
+    suspend fun getUrlFromCoordinate(
+        coordinate: String,
+        suffix: String,
+    ): String? = mavenRemoteDataSource.getUrlFromCoordinate(coordinate, suffix)
 }

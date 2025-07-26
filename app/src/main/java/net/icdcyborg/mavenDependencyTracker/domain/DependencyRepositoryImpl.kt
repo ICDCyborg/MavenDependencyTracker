@@ -193,4 +193,6 @@ class DependencyRepositoryImpl(
                 ?.version
         return dependency.copy(version = managedVersion)
     }
+
+    override suspend fun getUrlFromCoordinate(coordinate: String): String? = pomDataSource.getUrlFromCoordinate(coordinate, ".pom")
 }

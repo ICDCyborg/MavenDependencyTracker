@@ -30,4 +30,12 @@ interface DependencyRepository {
      * @return JARファイルが存在する場合はtrue、それ以外の場合はfalse。
      */
     suspend fun checkJarExists(coordinate: String): Boolean
+
+    /**
+     * 指定されたMaven座標に対応するPomのURLを返します。
+     *
+     * @param coordinate チェックするJARのMaven座標。
+     * @return URLもしくはnull
+     */
+    suspend fun getUrlFromCoordinate(coordinate: String): String?
 }

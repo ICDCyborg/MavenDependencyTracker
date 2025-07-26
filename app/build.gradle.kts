@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("io.gitlab.arturbosch.detekt")
 //    id("org.jlleitschuh.gradle.ktlint")
+    id("org.jetbrains.kotlinx.kover")
     jacoco
 }
 
@@ -97,10 +98,21 @@ dependencies {
 
 jacoco {
     toolVersion = libs.versions.jacoco.get()
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
 }
 
 detekt {
     config.setFrom(files("$rootDir/detekt.yml"))
+}
+
+koverReport {
+    filters {
+        excludes {
+            classes(
+                "theme.*",
+            )
+        }
+    }
 }
 
 // ktlint {

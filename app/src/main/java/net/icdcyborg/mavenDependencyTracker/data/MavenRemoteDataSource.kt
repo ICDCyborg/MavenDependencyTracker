@@ -26,16 +26,9 @@ class MavenRemoteDataSource(
      * @return 成功した場合はXML文字列を含む[Result.success]、失敗した場合は例外を含む[Result.failure]。
      */
     suspend fun getPomXml(coordinate: String): Result<String> {
-        val parts = coordinate.split(":")
-        if (parts.size != 3) {
-            return Result.failure(IllegalArgumentException("Invalid coordinate format"))
-        }
-        val groupId = parts[0]
-        val artifactId = parts[1]
-        val version = parts[2]
-
-        val path = "${groupId.replace('.', '/')}/$artifactId/$version/$artifactId-$version.pom"
-        val url = "$baseUrl$path"
+        val url =
+            getUrlFromCoordinate(coordinate, ".pom")
+                ?: return Result.failure(IllegalArgumentException("Invalid coordinate format"))
         println(url)
 
         return try {
@@ -65,16 +58,7 @@ class MavenRemoteDataSource(
      * @return JARファイルが存在する場合はtrue、それ以外の場合はfalse。
      */
     suspend fun checkJarExists(coordinate: String): Boolean {
-        val parts = coordinate.split(":")
-        if (parts.size != 3) {
-            return false
-        }
-        val groupId = parts[0]
-        val artifactId = parts[1]
-        val version = parts[2]
-
-        val path = "${groupId.replace('.', '/')}/$artifactId/$version/$artifactId-$version.jar"
-        val url = "$baseUrl$path"
+        val url = getUrlFromCoordinate(coordinate, ".jar") ?: return false
         println("Checking JAR: $url")
 
         return try {
@@ -84,5 +68,27 @@ class MavenRemoteDataSource(
             println("Error checking JAR existence for $coordinate: ${e.message}")
             false
         }
+    }
+
+    /**
+     * 指定されたMaven座標に対応するURLを返します。
+     *
+     * @param coordinate Maven座標 (例: "group:artifact:version")。
+     * @param suffix 拡張子を含む後置詞 (例: ".pom")。
+     * @return URL、もしくはNull
+     */
+    suspend fun getUrlFromCoordinate(
+        coordinate: String,
+        suffix: String,
+    ): String? {
+        val parts = coordinate.split(":")
+        if (parts.size != 3) {
+            return null
+        }
+        val groupId = parts[0]
+        val artifactId = parts[1]
+        val version = parts[2]
+
+        return "$baseUrl${groupId.replace('.', '/')}/$artifactId/$version/$artifactId-$version$suffix"
     }
 }
