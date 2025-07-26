@@ -4,10 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import net.icdcyborg.mavenDependencyTracker.domain.DependencyRepository
 
@@ -94,5 +97,21 @@ class MainViewModel(
      */
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    private val _copyEvent = MutableSharedFlow<String>()
+    val copyEvent: SharedFlow<String> = _copyEvent.asSharedFlow()
+
+    /**
+     * 解決済みの依存関係をクリップボードにコピーするイベントを発生させます。
+     * 依存関係が解決されており、かつ解決中でない場合にのみ実行されます。
+     */
+    fun onCopyClicked() {
+        viewModelScope.launch {
+            if (_uiState.value.resolvedDependencies.isNotEmpty() && !_uiState.value.isResolving) {
+                val textToCopy = _uiState.value.resolvedDependencies.joinToString("\n")
+                _copyEvent.emit(textToCopy)
+            }
+        }
     }
 }

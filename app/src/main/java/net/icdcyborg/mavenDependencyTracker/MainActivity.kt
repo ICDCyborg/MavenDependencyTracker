@@ -2,6 +2,9 @@
 
 package net.icdcyborg.mavenDependencyTracker
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,14 +13,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import net.icdcyborg.mavenDependencyTracker.data.MavenRemoteDataSource
 import net.icdcyborg.mavenDependencyTracker.data.PomCache
 import net.icdcyborg.mavenDependencyTracker.data.PomDataSource
@@ -70,56 +84,84 @@ fun MainScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val mavenCoordinateInput by viewModel.mavenCoordinateInput.collectAsState() // ViewModelから入力ステートを取得
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
-                value = mavenCoordinateInput, // ViewModelのステートをvalueに設定
-                onValueChange = { newValue ->
-                    viewModel.onMavenCoordinateInputChange(newValue) // ユーザーの入力をViewModelに通知してステートを更新
-                },
-                label = { Text("Maven Coordinate") },
-                modifier = Modifier.weight(1f),
-                enabled = !uiState.isResolving,
+    LaunchedEffect(Unit) {
+        viewModel.copyEvent.collect { textToCopy ->
+            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Resolved Dependencies", textToCopy)
+            clipboardManager.setPrimaryClip(clipData)
+            snackbarHostState.showSnackbar(
+                message = "Result Copied!",
+                duration = SnackbarDuration.Short,
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = { viewModel.startResolution() },
-                enabled = !uiState.isResolving,
-            ) {
-                Text("Resolve")
-            }
         }
+    }
 
-        if (uiState.isResolving) {
-            Spacer(modifier = Modifier.height(8.dp))
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { paddingValues ->
+        Column(modifier = Modifier.padding(paddingValues).padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                OutlinedTextField(
+                    value = mavenCoordinateInput, // ViewModelのステートをvalueに設定
+                    onValueChange = { newValue ->
+                        viewModel.onMavenCoordinateInputChange(newValue) // ユーザーの入力をViewModelに通知してステートを更新
+                    },
+                    label = { Text("ex) org.example:example:v1.0") },
+                    modifier = Modifier.weight(1f),
+                    enabled = !uiState.isResolving,
+                )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Resolving dependencies...")
-                Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = { viewModel.cancelResolution() }) {
-                    Text("Cancel")
+                Button(
+                    onClick = { viewModel.startResolution() },
+                    enabled = !uiState.isResolving,
+                ) {
+                    Text("Resolve")
                 }
             }
-        }
 
-        uiState.error?.let {
-            AlertDialog(
-                onDismissRequest = { viewModel.clearError() },
-                title = { Text("Error") },
-                text = { Text(it) },
-                confirmButton = {
-                    Button(onClick = { viewModel.clearError() }) {
-                        Text("OK")
+            if (uiState.isResolving) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Resolving dependencies...")
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(onClick = { viewModel.cancelResolution() }) {
+                        Text("Cancel")
                     }
-                },
-            )
-        }
+                }
+            }
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(uiState.resolvedDependencies) {
-                Text(it)
+            uiState.error?.let {
+                AlertDialog(
+                    onDismissRequest = { viewModel.clearError() },
+                    title = { Text("Error") },
+                    text = { Text(it) },
+                    confirmButton = {
+                        Button(onClick = { viewModel.clearError() }) {
+                            Text("OK")
+                        }
+                    },
+                )
+            }
+
+            Box(modifier = Modifier.weight(1f)) {
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp, end = 8.dp)) {
+                    items(uiState.resolvedDependencies) {
+                        Text(it)
+                    }
+                }
+
+                // Copy button
+                if (uiState.resolvedDependencies.isNotEmpty() && !uiState.isResolving) {
+                    IconButton(
+                        onClick = { viewModel.onCopyClicked() },
+                        modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 8.dp),
+                    ) {
+                        Icon(painterResource(id = R.drawable.copy), contentDescription = "Copy")
+                    }
+                }
             }
         }
     }
