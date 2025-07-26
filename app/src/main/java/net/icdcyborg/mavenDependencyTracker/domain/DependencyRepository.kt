@@ -14,4 +14,12 @@ interface DependencyRepository {
      * @return 解決された依存関係の座標を順次emitするFlow。
      */
     fun resolveDependencies(coordinate: String): Flow<String>
+
+    /**
+     * 指定されたMaven座標のPOMファイルの内容を取得します。
+     *
+     * @param coordinate POMファイルを取得するMaven座標。
+     * @return POMファイルの内容をemitするFlow。POMが見つからない場合は空のFlow。
+     */
+    fun getPom(coordinate: String): Flow<String>
 }

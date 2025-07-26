@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import net.icdcyborg.mavenDependencyTracker.domain.DependencyRepository
 
@@ -25,6 +26,8 @@ data class UiState(
     val isResolving: Boolean = false,
     val resolvedDependencies: List<String> = emptyList(),
     val error: String? = null,
+    val pomContent: String? = null,
+    val showPomDialog: Boolean = false,
 )
 
 /**
@@ -102,6 +105,12 @@ class MainViewModel(
     private val _copyEvent = MutableSharedFlow<String>()
     val copyEvent: SharedFlow<String> = _copyEvent.asSharedFlow()
 
+    private val _pomContent = MutableStateFlow<String?>(null)
+    val pomContent: StateFlow<String?> = _pomContent.asStateFlow()
+
+    private val _showPomDialog = MutableStateFlow(false)
+    val showPomDialog: StateFlow<Boolean> = _showPomDialog.asStateFlow()
+
     /**
      * 解決済みの依存関係をクリップボードにコピーするイベントを発生させます。
      * 依存関係が解決されており、かつ解決中でない場合にのみ実行されます。
@@ -113,5 +122,38 @@ class MainViewModel(
                 _copyEvent.emit(textToCopy)
             }
         }
+    }
+
+    /**
+     * 依存関係の項目がロングタップされたときにPOMの内容を表示します。
+     *
+     * @param dependency ロングタップされた依存関係の文字列。
+     */
+    fun onDependencyLongClicked(dependency: String) {
+        val regex = "^[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+:[a-zA-Z0-9.-]+".toRegex()
+        if (!regex.matches(dependency)) {
+            // 不正な文字列の場合は何もしない
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val pom = dependencyRepository.getPom(dependency).singleOrNull()
+                if (pom != null) {
+                    _uiState.value = _uiState.value.copy(pomContent = pom, showPomDialog = true)
+                } else {
+                    // Pomが取得できなかった場合は何もしない
+                }
+            } catch (e: Exception) {
+                // エラーが発生した場合は何もしない
+            }
+        }
+    }
+
+    /**
+     * POM表示ダイアログを閉じます。
+     */
+    fun onDismissPomDialog() {
+        _uiState.value = _uiState.value.copy(showPomDialog = false, pomContent = null)
     }
 }

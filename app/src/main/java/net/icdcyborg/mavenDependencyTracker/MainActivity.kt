@@ -27,6 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -147,9 +151,14 @@ fun MainScreen(
             }
 
             Box(modifier = Modifier.weight(1f)) {
-                LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp, end = 8.dp)) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(uiState.resolvedDependencies) {
-                        Text(it)
+                        Text(
+                            text = it,
+                            modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
+                                detectTapGestures(onLongPress = { _ -> viewModel.onDependencyLongClicked(it) })
+                            },
+                        )
                     }
                 }
 
@@ -162,6 +171,24 @@ fun MainScreen(
                         Icon(painterResource(id = R.drawable.copy), contentDescription = "Copy")
                     }
                 }
+            }
+
+            // POM Dialog
+            if (uiState.showPomDialog && uiState.pomContent != null) {
+                AlertDialog(
+                    onDismissRequest = { viewModel.onDismissPomDialog() },
+                    title = { Text("POM Content") },
+                    text = {
+                        Column {
+                            Text(text = uiState.pomContent!!, modifier = Modifier.verticalScroll(rememberScrollState()))
+                        }
+                    },
+                    confirmButton = {
+                        Button(onClick = { viewModel.onDismissPomDialog() }) {
+                            Text("Close")
+                        }
+                    },
+                )
             }
         }
     }
