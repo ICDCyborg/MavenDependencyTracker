@@ -27,3 +27,6 @@
   - `Feat: PomDataクラスの実装`
   - `Fix: Optionalタグが反映されない`
   - `Doc: MavenRepositoryクラスのメンバを修正`
+
+### 4.よく使うコマンド
+ - `gh issue view <IssueNumber>` : イシューの確認
