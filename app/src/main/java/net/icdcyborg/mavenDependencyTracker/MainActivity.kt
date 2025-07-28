@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.ui.unit.dp
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -185,7 +186,9 @@ fun MainScreen(
                     title = { Text("POM Content") },
                     text = {
                         Column {
-                            Text(text = highlightPomXml(uiState.pomContent!!), modifier = Modifier.verticalScroll(rememberScrollState()))
+                            SelectionContainer {
+                                Text(text = highlightPomXml(uiState.pomContent!!), modifier = Modifier.verticalScroll(rememberScrollState()))
+                            }
                         }
                     },
                     confirmButton = {
