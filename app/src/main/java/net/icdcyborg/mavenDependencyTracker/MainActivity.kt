@@ -5,6 +5,8 @@ package net.icdcyborg.mavenDependencyTracker
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +16,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
@@ -32,7 +36,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.ui.unit.dp
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -183,12 +186,24 @@ fun MainScreen(
             if (uiState.showPomDialog && uiState.pomContent != null) {
                 AlertDialog(
                     onDismissRequest = { viewModel.onDismissPomDialog() },
-                    title = { Text("POM Content") },
+                    title = { Text(uiState.pomTitle!!) },
                     text = {
                         Column {
-                            SelectionContainer {
-                                Text(text = highlightPomXml(uiState.pomContent!!), modifier = Modifier.verticalScroll(rememberScrollState()))
+                            uiState.pomLink?.let { url ->
+                                ClickableText(
+                                    text = AnnotatedString(url),
+                                    onClick = {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                        context.startActivity(intent)
+                                    },
+                                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
+                            Text(
+                                text = highlightPomXml(uiState.pomContent!!),
+                                modifier = Modifier.verticalScroll(rememberScrollState()),
+                            )
                         }
                     },
                     confirmButton = {
