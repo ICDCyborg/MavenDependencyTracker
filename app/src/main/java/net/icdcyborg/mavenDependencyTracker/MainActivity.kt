@@ -182,9 +182,7 @@ fun MainScreen(
             if (uiState.showPomDialog && uiState.pomContent != null) {
                 AlertDialog(
                     onDismissRequest = { viewModel.onDismissPomDialog() },
-                    title = {
-                        Text(uiState.pomTitle!!)
-                    },
+                    title = { Text("POM Content") },
                     text = {
                         Column {
                             Text(text = highlightPomXml(uiState.pomContent!!), modifier = Modifier.verticalScroll(rememberScrollState()))

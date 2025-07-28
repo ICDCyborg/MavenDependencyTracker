@@ -170,11 +170,17 @@ class DependencyRepositoryImpl(
         }
         println("resolving property: $value")
         val properties = pomData.properties?.map
-        return when (val key = value.substring(2, value.length - 1)) {
-            "project.version" -> pomData.version
-            "project.groupId" -> pomData.groupId
-            "project.artifactId" -> pomData.artifactId
-            else -> properties?.get(key) ?: value
+        val result =
+            when (val key = value.substring(2, value.length - 1)) {
+                "project.version" -> pomData.version
+                "project.groupId" -> pomData.groupId
+                "project.artifactId" -> pomData.artifactId
+                else -> properties?.get(key) ?: value
+            }
+        return if (result != null && result != value && result.startsWith("\${") && result.endsWith("}")) {
+            resolveProperty(result, pomData)
+        } else {
+            result
         }
     }
 
