@@ -109,7 +109,8 @@ koverReport {
     filters {
         excludes {
             classes(
-                "theme.*",
+                "*ComposableSingletons*",
+                "*MainActivityKt*",
             )
         }
     }
